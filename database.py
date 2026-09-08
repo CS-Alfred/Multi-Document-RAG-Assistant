@@ -4,7 +4,7 @@ from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from pdfload import load_and_chunk
 
-#load_dotenv()#loading the api key from the .env file.
+load_dotenv()#loading the api key from the .env file.
 
 def creating_vector_db(chunks, persist_dir="./chroma_db"):
 
