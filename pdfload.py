@@ -6,7 +6,7 @@ def load_and_chunk(filepath):
     loader = PyPDFLoader(filepath) #loading the pdf file.
     pages = loader.load()
 
-    splited_text = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)#splitting the text into chunks of 500 characters with an overlap of 50 characters.
+    splited_text = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=50)#splitting the text into chunks of 500 characters with an overlap of 50 characters.
 
     chunks = splited_text.split_documents(pages)
 
