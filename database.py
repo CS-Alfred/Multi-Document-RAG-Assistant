@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from pdfload import load_and_chunk
 
@@ -8,7 +8,7 @@ load_dotenv()#loading the api key from the .env file.
 
 def creating_vector_db(chunks, persist_dir="./chroma_db"):
 
-    embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")#model used for generating embeddings.
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")#model used for generating embeddings.
 
     vectorstorage = Chroma.from_documents(
         documents=chunks, 
