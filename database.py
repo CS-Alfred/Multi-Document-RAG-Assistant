@@ -10,7 +10,7 @@ def creating_vector_db(chunks, persist_dir="./chroma_db"):
 
     embeddings = HuggingFaceEndpointEmbeddings(
         model="sentence-transformers/all-MiniLM-L6-v2",huggingfacehub_api_token=hf_token)#model used for generating embeddings.
-    hf_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+    hf_token = os.getenv("HUGGINGFACEHUB_API_KEY")
 
     vectorstorage = Chroma.from_documents(
         documents=chunks, 
