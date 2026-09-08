@@ -7,7 +7,7 @@ load_dotenv()#loading the api key from the .env file.
 
 def creating_vector_db(chunks, persist_dir="./chroma_db"):
 
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")#model used for generating embeddings.
+    embeddings = HuggingFaceEndpointEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2")#model used for generating embeddings.
 
     vectorstorage = Chroma.from_documents(
         documents=chunks, 
