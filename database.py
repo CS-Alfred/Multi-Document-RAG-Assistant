@@ -8,7 +8,7 @@ load_dotenv()#loading the api key from the .env file.
 
 def creating_vector_db(chunks, persist_dir="./chroma_db"):
 
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")#model used for generating embeddings.
+    embeddings = GoogleGenerativeAIEmbeddings(model="gemini-embedding-001")#model used for generating embeddings.
 
     vectorstorage = Chroma.from_documents(
         documents=chunks, 
