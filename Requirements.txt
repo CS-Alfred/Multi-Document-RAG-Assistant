@@ -1,3 +1,10 @@
+#For pdfload.py
 pypdf 
 langchain-community 
 langchain-text-splitters
+
+#For database.py
+langchain-chroma 
+chromadb 
+langchain-google-genai 
+python-dotenv
