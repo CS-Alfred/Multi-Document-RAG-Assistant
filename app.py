@@ -31,12 +31,13 @@ vectorstore = conect_vector_db()
 
 def connect_llm():
     # We use Llama 3.1
-    return ChatGroq(
-        repo_id="llama-3.1-8b-instant", 
+    M = ChatGroq(
+        model="llama-3.1-8b-instant", 
         api_key=groq_token,
         temperature=0.2,
         max_new_tokens=512
     )
+    return M
     
 
 llm = connect_llm()
