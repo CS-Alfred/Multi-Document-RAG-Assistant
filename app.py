@@ -3,7 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint
-from langchain.chains import RetrievalQA
+from langchain_classic.chains import RetrievalQA
 
 
 load_dotenv()
