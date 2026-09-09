@@ -19,7 +19,7 @@ groq_token = os.getenv("GROQ_API_KEY")#loading the api key from the .env file.
 st.title("Document Reader")
 st.write("Ask questions and get answers directly from your PDF!")
 
-uploaded_file = st.file_uploader("Upload your document",type=["pdf", "txt", "csv", "docx"])#user uploading the pdf file.
+uploaded_file = st.file_uploader("Upload your document",type=["pdf", "txt", "csv", "docx"])#user uploading the document.
 
 
 
