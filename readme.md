@@ -10,4 +10,4 @@ Instead of relying only on the LLM's pretrained knowledge, the system retrieves 
 
 ## 🎥 Video Demo
 
-[![Watch the Multi-Document RAG Assistant Demo]https://youtu.be/iIwzZryBjT0?si=JvAsHV42-wOp1WWq](https://youtu.be/iIwzZryBjT0?si=JvAsHV42-wOp1WWq)
+[![Watch the Multi-Document RAG Assistant Demo](https://youtu.be/iIwzZryBjT0?si=JvAsHV42-wOp1WWq)]
