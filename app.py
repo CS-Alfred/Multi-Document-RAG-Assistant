@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint, ChatHuggingFace
 from langchain_classic.chains import RetrievalQA
 
 
@@ -35,6 +35,7 @@ def connect_llm():
         temperature=0.1,
         max_new_tokens=512
     )
+    return ChatHuggingFace(llm=base_llm)
 
 llm = connect_llm()
 
