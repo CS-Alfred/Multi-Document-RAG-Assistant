@@ -29,7 +29,7 @@ vectorstore = conect_vector_db()
 
 def connect_llm():
     # We use Mistral, a powerful free AI model hosted on Hugging Face
-    return HuggingFaceEndpoint(
+    base_llm = HuggingFaceEndpoint(
         repo_id="mistralai/Mistral-7B-Instruct-v0.3", 
         huggingfacehub_api_token=hf_token,
         temperature=0.1,
