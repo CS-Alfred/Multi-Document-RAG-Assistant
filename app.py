@@ -32,7 +32,7 @@ vectorstore = conect_vector_db()
 def connect_llm():
     # We use llama-3.3-70b-versatile
     M = ChatGroq(
-        model="llama-3.3-70b-versatile", 
+        model="openai/gpt-oss-120b", 
         api_key=groq_token,
         temperature=0.2,
         max_tokens=512
