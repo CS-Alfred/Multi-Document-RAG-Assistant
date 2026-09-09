@@ -3,12 +3,14 @@ import streamlit as st
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint, ChatHuggingFace
+from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
 
 
 load_dotenv()
 
 hf_token =os.getenv("HUGGINGFACEHUB_API_KEY")#loading the api key from the .env file.
+groq_token = os.getenv("GROQ_API_KEY")#loading the api key from the .env file.
 
 
 st.title("Document Reader")
@@ -28,14 +30,14 @@ vectorstore = conect_vector_db()
 @st.cache_resource
 
 def connect_llm():
-    # We use Mistral, a powerful free AI model hosted on Hugging Face
-    base_llm = HuggingFaceEndpoint(
-        repo_id="HuggingFaceH4/zephyr-7b-beta", 
+    # We use Llama 3.1
+    return ChatGroq(
+        repo_id="llama-3.1-8b-instant", 
         huggingfacehub_api_token=hf_token,
         temperature=0.1,
         max_new_tokens=512
     )
-    return ChatHuggingFace(llm=base_llm)
+    
 
 llm = connect_llm()
 
