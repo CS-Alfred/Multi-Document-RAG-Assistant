@@ -21,5 +21,5 @@ def creating_vector_db(chunks, persist_dir="./chroma_db"):
     return vectorstorage    
 
 if __name__ == "__main__":
-    my_chunks = load_and_chunk("sample.pdf")
+    my_chunks = load_and_chunk("bible.pdf")
     creating_vector_db(my_chunks)

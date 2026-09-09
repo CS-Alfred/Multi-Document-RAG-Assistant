@@ -15,5 +15,5 @@ def load_and_chunk(filepath):
     return chunks
 
 if __name__ == "__main__":
-    filepat = "sample.pdf" #path to the pdf file.
+    filepat = "bible.pdf" #path to the pdf file.
     load_and_chunk(filepat)
