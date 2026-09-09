@@ -31,7 +31,7 @@ if user_query:
     with st.spinner("Searching..."):
         docs = vectorstore.similarity_search(user_query, k=3)
 
-        st.success()
+        st.success("Your answer is ready!")
 
         for i, doc in enumerate(docs):
             st.write(doc.page_content)
