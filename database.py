@@ -10,6 +10,8 @@ def creating_vector_db(chunks, persist_dir="./chroma_db"):
     hf_token = os.getenv("HUGGINGFACEHUB_API_KEY")
     embeddings = HuggingFaceEndpointEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2",huggingfacehub_api_token=hf_token)#model used for generating embeddings.
     
+    if os.path.exists(persist_dir):
+        shutil.rmtree(persist_dir)
 
     vectorstorage = Chroma.from_documents(
         documents=chunks, 
@@ -20,6 +22,3 @@ def creating_vector_db(chunks, persist_dir="./chroma_db"):
     print(f"Success! Vector database created in the '{persist_dir}' folder.")
     return vectorstorage    
 
-if __name__ == "__main__":
-    my_chunks = load_and_chunk("bible.pdf")
-    creating_vector_db(my_chunks)
