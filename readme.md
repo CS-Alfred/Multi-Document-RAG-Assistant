@@ -5,3 +5,5 @@
 ### Overview
 
 This application uses a Retrieval-Augmented Generation (RAG) pipeline to retrieve relevant information from uploaded documents and provide grounded answers using a Large Language Model (LLM).
+
+Instead of relying only on the LLM's pretrained knowledge, the system retrieves relevant document content and provides it as context to the model before generating an answer. This helps make responses more relevant to the uploaded documents and reduces unsupported answers.
