@@ -7,7 +7,7 @@ from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndp
 from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
-from pdfload import load_and_chunk
+from docload import load_and_chunk
 
 
 load_dotenv()
@@ -16,8 +16,8 @@ hf_token =os.getenv("HUGGINGFACEHUB_API_KEY")#loading the api key from the .env 
 groq_token = os.getenv("GROQ_API_KEY")#loading the api key from the .env file.
 
 
-st.title("Document Reader")
-st.write("Ask questions and get answers directly from your PDF!")
+st.title("Multi-Document Reader")
+st.write("Ask questions and get answers directly from your documents!")
 
 uploaded_file = st.file_uploader("Upload your document",type=["pdf", "txt", "csv", "docx"])#user uploading the document.
 
