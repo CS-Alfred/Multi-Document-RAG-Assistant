@@ -1,25 +1,37 @@
 import os
-import streamlit as st
 import tempfile
+
+import streamlit as st
 from dotenv import load_dotenv
+
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint, ChatHuggingFace
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
+
 from docload import load_and_chunk
+
 
 
 load_dotenv()
 
-hf_token =os.getenv("HUGGINGFACEHUB_API_KEY")#loading the api key from the .env file.
-groq_token = os.getenv("GROQ_API_KEY")#loading the api key from the .env file.
+hf_token = os.getenv("HUGGINGFACEHUB_API_KEY")
+groq_token = os.getenv("GROQ_API_KEY")
 
 
-st.title("Multi-Document Reader")
-st.write("Ask questions and get answers directly from your documents!")
 
-uploaded_file = st.file_uploader("Upload your document",type=["pdf", "txt", "csv", "docx"])#user uploading the document.
+
+st.title("Multi-Document RAG Assistant")
+
+st.write(
+    "Upload a document and ask questions about its content."
+)
+
+uploaded_file = st.file_uploader(
+    "Upload your document",
+    type=["pdf", "txt", "csv", "docx"]
+)
 
 
 
@@ -27,9 +39,10 @@ uploaded_file = st.file_uploader("Upload your document",type=["pdf", "txt", "csv
 def get_embeddings():
 
     return HuggingFaceEndpointEmbeddings(
-        model="sentence-transformers/all-MiniLM-L6-v2",#creating the embeddings using the sentence-transformers/all-MiniLM-L6-v2 model.
+        model="sentence-transformers/all-MiniLM-L6-v2",
         huggingfacehub_api_token=hf_token
     )
+
 
 
 
@@ -48,55 +61,69 @@ def connect_llm():
 
 
 
-def create_vectorstore(uploaded_file):#creating the vector database from the uploaded pdf file.
-
+def create_vectorstore(uploaded_file):
+    
     embeddings = get_embeddings()
 
-    # Create temporary PDF file
+    # Get the original file extension
+    file_extension = os.path.splitext(
+        uploaded_file.name
+    )[1].lower()
+
+    # Create a temporary file
     with tempfile.NamedTemporaryFile(
         delete=False,
-        suffix=".pdf"
+        suffix=file_extension
     ) as temp_file:
 
-        temp_file.write(uploaded_file.getvalue())
+        temp_file.write(
+            uploaded_file.getvalue()
+        )
 
-        temp_pdf_path = temp_file.name
+        temp_file_path = temp_file.name
 
+    try:
 
-    # Load and chunk PDF
-    chunks = load_and_chunk(temp_pdf_path)
+        # Load and chunk the document
+        chunks = load_and_chunk(
+            temp_file_path
+        )
 
+        # Create Chroma vector store
+        vectorstore = Chroma.from_documents(
+            documents=chunks,
+            embedding=embeddings
+        )
 
-    # Create Chroma vector store
-    vectorstore = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings
-    )
+        return vectorstore, len(chunks)
 
+    finally:
 
-    # Delete temporary PDF
-    os.remove(temp_pdf_path)
-
-
-    return vectorstore, len(chunks)
+        # Always delete temporary file
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
 
 
 
 if uploaded_file:
 
-    st.success(f"Uploaded: {uploaded_file.name}")
+    st.success(
+        f"Uploaded: {uploaded_file.name}"
+    )
 
-    with st.spinner("Reading and processing your PDF..."):
+    with st.spinner(
+        "Reading and processing your document..."
+    ):
 
         vectorstore, chunk_count = create_vectorstore(
             uploaded_file
         )
 
     st.success(
-        f"PDF processed successfully!"
+        f"Document processed successfully! "
+        f"Created {chunk_count} chunks."
     )
-
 
 
 
@@ -115,7 +142,7 @@ Rules:
 5. If the document does not contain enough information,
    say that the answer cannot be found in the document.
 6. Do not invent information.
-7. When possible, mention the relevant page number.
+7. Use the retrieved context as the source of truth.
 
 Context:
 
@@ -131,19 +158,29 @@ Answer:
 
     PROMPT = PromptTemplate(
         template=prompt_template,
-        input_variables=["context", "question"]
+        input_variables=[
+            "context",
+            "question"
+        ]
     )
+
+
 
 
     llm = connect_llm()
 
 
+
+
     qa_chain = RetrievalQA.from_chain_type(
         llm=llm,
+
         chain_type="stuff",
 
         retriever=vectorstore.as_retriever(
-            search_kwargs={"k": 5}
+            search_kwargs={
+                "k": 5
+            }
         ),
 
         return_source_documents=True,
@@ -163,18 +200,24 @@ Answer:
 
     if user_query:
 
-        with st.spinner("Searching the document..."):#query chain is invoked to get the answer from the document.
+        with st.spinner(
+            "Searching the document..."
+        ):
 
-            result = qa_chain.invoke({
-                "query": user_query
-            })
+            result = qa_chain.invoke(
+                {
+                    "query": user_query
+                }
+            )
 
 
 
 
         st.subheader("Answer")
 
-        st.write(result["result"])
+        st.write(
+            result["result"]
+        )
 
 
 
@@ -185,12 +228,32 @@ Answer:
             result["source_documents"]
         ):
 
-            page_number = (
-                doc.metadata.get("page", "Unknown")
+            page_number = doc.metadata.get(
+                "page",
+                "N/A"
+            )
+
+            source_name = doc.metadata.get(
+                "source",
+                uploaded_file.name
             )
 
             st.write(
-                f"**Source {i + 1} — Page {page_number}**"
+                f"**Source {i + 1}**"
             )
 
-            st.write(doc.page_content)
+            st.write(
+                f"File: `{os.path.basename(source_name)}`"
+            )
+
+            st.write(
+                f"Page: `{page_number}`"
+            )
+
+            with st.expander(
+                "View source content"
+            ):
+
+                st.write(
+                    doc.page_content
+                )
