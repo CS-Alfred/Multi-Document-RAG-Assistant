@@ -1,11 +1,13 @@
 import os
 import streamlit as st
+import tempfile
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint, ChatHuggingFace
 from langchain_groq import ChatGroq
 from langchain_classic.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
+from pdfload import load_and_chunk
 
 
 load_dotenv()
@@ -17,96 +19,195 @@ groq_token = os.getenv("GROQ_API_KEY")#loading the api key from the .env file.
 st.title("Document Reader")
 st.write("Ask questions and get answers directly from your PDF!")
 
-@st.cache_resource
+uploaded_file = st.file_uploader("Upload your PDF",type=["pdf"])#user uploading the pdf file.
 
-def conect_vector_db():
-    embeddings = HuggingFaceEndpointEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2",huggingfacehub_api_token=hf_token)
-    db = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)#Establishing the connection between the vector database and the webapp.
-
-    return db
-
-
-vectorstore = conect_vector_db()
+# --------------------------------------------------
+# EMBEDDINGS
+# --------------------------------------------------
 
 @st.cache_resource
+def get_embeddings():
 
+    return HuggingFaceEndpointEmbeddings(
+        model="sentence-transformers/all-MiniLM-L6-v2",
+        huggingfacehub_api_token=hf_token
+    )
+
+
+# --------------------------------------------------
+# LLM
+# --------------------------------------------------
+
+@st.cache_resource
 def connect_llm():
-    # We use llama-3.3-70b-versatile
-    M = ChatGroq(
-        model="openai/gpt-oss-120b", 
+
+    llm = ChatGroq(
+        model="openai/gpt-oss-120b",
         api_key=groq_token,
         temperature=0.2,
         max_tokens=512
     )
-    return M
-    
 
-llm = connect_llm()
+    return llm
 
-@st.cache_resource
-def get_qa_chain(_llm, _vectorstore):
+
+# --------------------------------------------------
+# CREATE VECTOR DATABASE
+# --------------------------------------------------
+
+def create_vectorstore(uploaded_file):
+
+    embeddings = get_embeddings()
+
+    # Create temporary PDF file
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".pdf"
+    ) as temp_file:
+
+        temp_file.write(uploaded_file.getvalue())
+
+        temp_pdf_path = temp_file.name
+
+
+    # Load and chunk PDF
+    chunks = load_and_chunk(temp_pdf_path)
+
+
+    # Create Chroma vector store
+    vectorstore = Chroma.from_documents(
+        documents=chunks,
+        embedding=embeddings
+    )
+
+
+    # Delete temporary PDF
+    os.remove(temp_pdf_path)
+
+
+    return vectorstore, len(chunks)
+
+
+# --------------------------------------------------
+# PROCESS UPLOADED PDF
+# --------------------------------------------------
+
+if uploaded_file:
+
+    st.success(f"Uploaded: {uploaded_file.name}")
+
+    with st.spinner("Reading and processing your PDF..."):
+
+        vectorstore, chunk_count = create_vectorstore(
+            uploaded_file
+        )
+
+    st.success(
+        f"PDF processed successfully! Created {chunk_count} chunks."
+    )
+
+
+    # --------------------------------------------------
+    # CREATE QA CHAIN
+    # --------------------------------------------------
 
     prompt_template = """
-You are a helpful Bible document assistant.
+You are a helpful document question-answering assistant.
 
-Answer the user's question using ONLY the information contained
-in the provided context.
+Answer the user's question using ONLY the information
+contained in the provided context.
 
-Important instructions:
-1. Understand the user's question before answering.
-2. Do not simply list passages that contain the searched word.
+Rules:
+
+1. Understand the question before answering.
+2. Do not simply repeat matching passages.
 3. Synthesize information from multiple passages when necessary.
-4. If a person has the same name as another person in the Bible,
-   identify the correct person from the context.
-5. For questions such as "Who is Joseph?", give a concise
-   identification of the person and explain his important role
-   or relationships.
-6. If the context does not contain enough information to answer,
-   say that the information is not sufficient.
-7. Do not make up information that is not supported by the context.
+4. Give a clear and direct answer.
+5. If the document does not contain enough information,
+   say that the answer cannot be found in the document.
+6. Do not invent information.
+7. When possible, mention the relevant page number.
 
 Context:
+
 {context}
 
 Question:
+
 {question}
 
 Answer:
 """
+
 
     PROMPT = PromptTemplate(
         template=prompt_template,
         input_variables=["context", "question"]
     )
 
-    return RetrievalQA.from_chain_type(
-        llm=_llm,
+
+    llm = connect_llm()
+
+
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
         chain_type="stuff",
-        retriever=_vectorstore.as_retriever(
+
+        retriever=vectorstore.as_retriever(
             search_kwargs={"k": 5}
         ),
+
         return_source_documents=True,
+
         chain_type_kwargs={
             "prompt": PROMPT
         }
     )
 
-qa_chain = get_qa_chain(llm, vectorstore)
+
+    # --------------------------------------------------
+    # QUESTION
+    # --------------------------------------------------
+
+    user_query = st.text_input(
+        "What would you like to know about the document?"
+    )
 
 
-user_query = st.text_input("What would you like to know about the document?")#user asking the query
+    if user_query:
 
-if user_query:
-    with st.spinner("Searching..."):
-        result = qa_chain.invoke({"query": user_query})
+        with st.spinner("Searching the document..."):
 
-        st.success("Your answer is ready!")
+            result = qa_chain.invoke({
+                "query": user_query
+            })
 
-        st.write("### Answer")
+
+        # --------------------------------------------------
+        # ANSWER
+        # --------------------------------------------------
+
+        st.subheader("Answer")
+
         st.write(result["result"])
 
-        st.write("### Sources")
 
-        for i, doc in enumerate(result["source_documents"]):
-            st.write(f"**Source {i + 1}**")
+        # --------------------------------------------------
+        # SOURCES
+        # --------------------------------------------------
+
+        st.subheader("Sources")
+
+        for i, doc in enumerate(
+            result["source_documents"]
+        ):
+
+            page_number = (
+                doc.metadata.get("page", "Unknown")
+            )
+
+            st.write(
+                f"**Source {i + 1} — Page {page_number}**"
+            )
+
             st.write(doc.page_content)
