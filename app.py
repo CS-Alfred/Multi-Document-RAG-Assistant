@@ -2,7 +2,8 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings, HuggingFaceEndpoint
+from langchain.chains import RetrievalQA
 
 
 load_dotenv()
@@ -24,15 +25,40 @@ def conect_vector_db():
 
 vectorstore = conect_vector_db()
 
+@st.cache_resource
+
+def connect_llm():
+    # We use Mistral, a powerful free AI model hosted on Hugging Face
+    return HuggingFaceEndpoint(
+        repo_id="mistralai/Mistral-7B-Instruct-v0.3", 
+        huggingfacehub_api_token=hf_token,
+        temperature=0.1,
+        max_new_tokens=512
+    )
+
+llm = connect_llm()
+
+@st.cache_resource
+
+def get_qa_chain(_llm, _vectorstore):
+    return RetrievalQA.from_chain_type(
+        llm=_llm,
+        chain_type="stuff",
+        retriever=_vectorstore.as_retriever(search_kwargs={"k": 3}),
+        return_source_documents=True
+    )
+
+qa_chain = get_qa_chain(llm, vectorstore)
+
 
 user_query = st.text_input("What would you like to know about the document?")#user asking the query
 
 if user_query:
     with st.spinner("Searching..."):
-        docs = vectorstore.similarity_search(user_query, k=3)
+        result = qa_chain.invoke({"query": user_query})
 
         st.success("Your answer is ready!")
 
-        for i, doc in enumerate(docs):
+        for i, doc in enumerate(result["source_documents"]):
             st.write(doc.page_content)
 
