@@ -33,8 +33,8 @@ def connect_llm():
     # We use Llama 3.1
     return ChatGroq(
         repo_id="llama-3.1-8b-instant", 
-        huggingfacehub_api_token=hf_token,
-        temperature=0.1,
+        api_key=groq_token,
+        temperature=0.2,
         max_new_tokens=512
     )
     
