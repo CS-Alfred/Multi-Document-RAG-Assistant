@@ -30,12 +30,12 @@ vectorstore = conect_vector_db()
 @st.cache_resource
 
 def connect_llm():
-    # We use Llama 3.1
+    # We use llama-3.3-70b-versatile
     M = ChatGroq(
-        model="llama-3.1-8b-instant", 
+        model="llama-3.3-70b-versatile", 
         api_key=groq_token,
         temperature=0.2,
-        max_new_tokens=512
+        max_tokens=512
     )
     return M
     
