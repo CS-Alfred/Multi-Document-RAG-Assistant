@@ -21,22 +21,17 @@ st.write("Ask questions and get answers directly from your PDF!")
 
 uploaded_file = st.file_uploader("Upload your PDF",type=["pdf"])#user uploading the pdf file.
 
-# --------------------------------------------------
-# EMBEDDINGS
-# --------------------------------------------------
+
 
 @st.cache_resource
 def get_embeddings():
 
     return HuggingFaceEndpointEmbeddings(
-        model="sentence-transformers/all-MiniLM-L6-v2",
+        model="sentence-transformers/all-MiniLM-L6-v2",#creating the embeddings using the sentence-transformers/all-MiniLM-L6-v2 model.
         huggingfacehub_api_token=hf_token
     )
 
 
-# --------------------------------------------------
-# LLM
-# --------------------------------------------------
 
 @st.cache_resource
 def connect_llm():
@@ -51,11 +46,9 @@ def connect_llm():
     return llm
 
 
-# --------------------------------------------------
-# CREATE VECTOR DATABASE
-# --------------------------------------------------
 
-def create_vectorstore(uploaded_file):
+
+def create_vectorstore(uploaded_file):#creating the vector database from the uploaded pdf file.
 
     embeddings = get_embeddings()
 
@@ -88,9 +81,7 @@ def create_vectorstore(uploaded_file):
     return vectorstore, len(chunks)
 
 
-# --------------------------------------------------
-# PROCESS UPLOADED PDF
-# --------------------------------------------------
+
 
 if uploaded_file:
 
@@ -103,13 +94,11 @@ if uploaded_file:
         )
 
     st.success(
-        f"PDF processed successfully! Created {chunk_count} chunks."
+        f"PDF processed successfully!"
     )
 
 
-    # --------------------------------------------------
-    # CREATE QA CHAIN
-    # --------------------------------------------------
+
 
     prompt_template = """
 You are a helpful document question-answering assistant.
@@ -165,9 +154,7 @@ Answer:
     )
 
 
-    # --------------------------------------------------
-    # QUESTION
-    # --------------------------------------------------
+
 
     user_query = st.text_input(
         "What would you like to know about the document?"
@@ -176,25 +163,21 @@ Answer:
 
     if user_query:
 
-        with st.spinner("Searching the document..."):
+        with st.spinner("Searching the document..."):#query chain is invoked to get the answer from the document.
 
             result = qa_chain.invoke({
                 "query": user_query
             })
 
 
-        # --------------------------------------------------
-        # ANSWER
-        # --------------------------------------------------
+
 
         st.subheader("Answer")
 
         st.write(result["result"])
 
 
-        # --------------------------------------------------
-        # SOURCES
-        # --------------------------------------------------
+
 
         st.subheader("Sources")
 
