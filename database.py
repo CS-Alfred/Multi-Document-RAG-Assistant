@@ -3,7 +3,7 @@ import shutil
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
-from pdfload import load_and_chunk
+from docload import load_and_chunk
 
 load_dotenv()#loading the api key from the .env file.
 
