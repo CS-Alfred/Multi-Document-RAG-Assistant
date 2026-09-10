@@ -47,4 +47,18 @@ Instead of relying only on the LLM's pretrained knowledge, the system retrieves 
             - venv\Scripts\activate
         2. To activate in macOS/Linux
             - source venv/bin/activate
-            
+3. Install Dependencies
+    - pip install -r Requirements.txt
+
+4. Configure API Keys
+    - Create a .env file in the project root
+    **HUGGINGFACEHUB_API_KEY=your_huggingface_api_key**
+    **GROQ_API_KEY=your_groq_api_key**
+
+    ***Replace the placeholder values with your own API keys.***   
+
+    ***Important: Never commit your .env file or expose your API keys publicly.***     
+
+5. Run the Application
+    - streamlit run app.py
+    The application will open in your browser.    
