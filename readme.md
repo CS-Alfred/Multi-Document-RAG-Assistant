@@ -35,3 +35,16 @@ Instead of relying only on the LLM's pretrained knowledge, the system retrieves 
 * Hugging Face API key
 
 **Python dependencies are listed in** ***Requirements.txt***
+
+## Installation
+1. Clone the repository
+    - git clone https://github.com/CS-Alfred/Multi-Document-RAG-Assistant.git
+        1. Navigate into project folder
+            - cd Multi-Document-RAG-Assistant
+2. Create a virtual environment
+    - python -m venv venv
+        1. To activate in windows
+            - venv\Scripts\activate
+        2. To activate in macOS/Linux
+            - source venv/bin/activate
+            
