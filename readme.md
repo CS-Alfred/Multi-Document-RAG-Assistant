@@ -20,3 +20,18 @@ Instead of relying only on the LLM's pretrained knowledge, the system retrieves 
 * The LLM is instructed to answer using the retrieved document context rather than relying solely on general knowledge.
 * Retrieved document sections can be displayed alongside generated answers.
 * Provides a simple web interface for uploading documents and asking questions.
+
+## Technologies Used
+* Python
+* LangChain
+* ChromaDB
+* Hugging Face
+* Groq
+* Streamlit
+
+## Basic Requirements
+* Python 3.10+
+* Groq API key
+* Hugging Face API key
+
+**Python dependencies are listed in** ***Requirements.txt***
