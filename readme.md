@@ -61,4 +61,20 @@ Instead of relying only on the LLM's pretrained knowledge, the system retrieves 
 
 5. Run the Application
     - streamlit run app.py
-    The application will open in your browser.    
+
+    **The application will open in your browser.**
+
+## References and Resources
+This project was developed by studying and referring to documentation, tutorials, videos, and resources related to RAG, LangChain, vector databases, embeddings, and LLM applications.
+
+### Documentation
+* LangChain Documentation
+* ChromaDB Documentation
+* Hugging Face Documentation
+* Groq Documentation
+* Streamlit Documentation
+
+### YouTube
+* [Large Language Models explained briefly]https://www.youtube.com/watch?v=LPZh9BOjkQs&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=5
+* [Transformers, the tech behind LLMs]https://www.youtube.com/watch?v=wjZofJX0v4M&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=6
+* [Attention in transformers, step-by-step]https://www.youtube.com/watch?v=eMlx5fFNoYc&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi&index=7
